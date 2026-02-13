@@ -1,0 +1,41 @@
+/* Status Badge Styles */
+
+.status-badge {
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.status-free {
+  background-color: #d1fae5;
+  color: #01271c;
+  border: 1px solid #14ba82;
+}
+
+.status-occupied {
+  background-color: #fee2e2;
+  color: #ec2626;
+  border: 1px solid #a62e2e;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.status-approved {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+}
+
+.status-rejected {
+  background-color: #fce7f3;
+  color: #983450;
+  border: 1px solid #ec4899;
+}
