@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import RoomCard from '../components/RoomCard';
 import BookingForm from '../components/BookingForm';
 import { mockRooms, getBuildings } from '../data/mockRooms';
-import { addBooking } from '../data/mockBookings';
+import { mockBookings, addBooking } from '../data/mockBookings';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSchool, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +18,8 @@ const StudentDashboard = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [activeView, setActiveView] = useState('find-rooms'); // 'find-rooms' or 'my-bookings'
+  const [myBookings, setMyBookings] = useState(mockBookings.filter(b => b.studentName === user.username));
 
   const buildings = ['all', ...getBuildings()];
 
@@ -41,6 +43,7 @@ const StudentDashboard = () => {
       studentId: 'CS2024XXX' // This would come from user profile
     });
 
+    setMyBookings([...myBookings, newBooking]);
     setShowBookingForm(false);
     setSelectedRoom(null);
     
@@ -53,6 +56,16 @@ const StudentDashboard = () => {
     setTimeout(() => setNotification(null), 5000);
   };
 
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const stats = {
     total: rooms.length,
     free: rooms.filter(r => r.status === 'Free').length,
@@ -63,7 +76,7 @@ const StudentDashboard = () => {
     <div className="dashboard-layout">
       <Navbar />
       <div className="dashboard-main">
-        <Sidebar />
+        <Sidebar activeView={activeView} onViewChange={setActiveView} />
         <main className="dashboard-content">
           <div className="dashboard-header">
             <h1>Student Dashboard</h1>
@@ -76,8 +89,10 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {/* Statistics Cards */}
-          <div className="stats-grid">
+          {activeView === 'find-rooms' ? (
+            <>
+              {/* Statistics Cards */}
+              <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-icon"><FontAwesomeIcon icon={faSchool} size="2x" /></div>
               <div className="stat-info">
@@ -160,6 +175,80 @@ const StudentDashboard = () => {
               )}
             </div>
           </div>
+            </>
+          ) : (
+            <>
+              {/* My Bookings View */}
+              <section className="dashboard-section">
+                <h2>My Bookings</h2>
+                {myBookings.length > 0 ? (
+                  <div className="bookings-list">
+                    {myBookings.map(booking => (
+                      <div key={booking.id} className="booking-card">
+                        <div className="booking-header">
+                          <div>
+                            <h3>Room {booking.roomNumber}</h3>
+                            <p className="booking-building">{booking.building}</p>
+                          </div>
+                          <span className={`booking-status status-${booking.status.toLowerCase()}`}>
+                            {booking.status}
+                          </span>
+                        </div>
+                        
+                        <div className="booking-details">
+                          <div className="booking-info">
+                            <span className="label">Purpose:</span>
+                            <span className="value">{booking.purpose}</span>
+                          </div>
+                          <div className="booking-info">
+                            <span className="label">Time:</span>
+                            <span className="value">
+                              {formatDateTime(booking.startTime)} - {formatDateTime(booking.endTime)}
+                            </span>
+                          </div>
+                          <div className="booking-info">
+                            <span className="label">Requested:</span>
+                            <span className="value">{formatDateTime(booking.requestedAt)}</span>
+                          </div>
+                          {booking.status === 'Approved' && booking.approvedBy && (
+                            <div className="booking-info">
+                              <span className="label">Approved By:</span>
+                              <span className="value">{booking.approvedBy}</span>
+                            </div>
+                          )}
+                          {booking.status === 'Rejected' && (
+                            <>
+                              <div className="booking-info">
+                                <span className="label">Rejected By:</span>
+                                <span className="value">{booking.rejectedBy}</span>
+                              </div>
+                              {booking.rejectionReason && (
+                                <div className="booking-info">
+                                  <span className="label">Reason:</span>
+                                  <span className="value" style={{ color: '#e74c3c' }}>{booking.rejectionReason}</span>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-bookings">
+                    <p>You haven't made any booking requests yet.</p>
+                    <button 
+                      className="login-btn" 
+                      onClick={() => setActiveView('find-rooms')}
+                      style={{ marginTop: '20px' }}
+                    >
+                      Find Rooms
+                    </button>
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </main>
       </div>
 

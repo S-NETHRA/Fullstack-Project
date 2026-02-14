@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSchool } from '@fortawesome/free-solid-svg-icons';
@@ -80,6 +80,10 @@ const Login = () => {
           <button type="submit" className="login-btn">
             Login
           </button>
+
+          <div className="login-footer" style={{ textAlign: 'center', marginTop: '15px' }}>
+            <p>Don't have an account? <Link to="/register" style={{ color: '#4CAF50', textDecoration: 'none', fontWeight: 'bold' }}>Register here</Link></p>
+          </div>
         </form>
 
         {/* <div className="login-footer">

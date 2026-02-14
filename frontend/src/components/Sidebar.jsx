@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faDoorOpen, faClipboardList, faFileAlt, faChartBar } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ activeView, onViewChange }) => {
   const { user } = useAuth();
 
   const getMenuItems = () => {
@@ -13,9 +13,9 @@ const Sidebar = () => {
     switch (user.role) {
       case 'student':
         return [
-          { path: '/student-dashboard', icon: faHome, label: 'Dashboard' },
-          { path: '/student-dashboard', icon: faDoorOpen, label: 'Find Rooms' },
-          { path: '/student-dashboard', icon: faClipboardList, label: 'My Bookings' }
+          { path: '/student-dashboard', icon: faHome, label: 'Dashboard', view: 'find-rooms' },
+          { path: '/student-dashboard', icon: faDoorOpen, label: 'Find Rooms', view: 'find-rooms' },
+          { path: '/student-dashboard', icon: faClipboardList, label: 'My Bookings', view: 'my-bookings' }
         ];
       case 'faculty':
         return [
@@ -40,16 +40,29 @@ const Sidebar = () => {
     <aside className="sidebar">
       <div className="sidebar-menu">
         {menuItems.map((item, index) => (
-          <NavLink
-            key={index}
-            to={item.path}
-            className={({ isActive }) => 
-              `sidebar-item ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="sidebar-icon"><FontAwesomeIcon icon={item.icon} /></span>
-            <span className="sidebar-label">{item.label}</span>
-          </NavLink>
+          item.view ? (
+            // For student views with view switching
+            <button
+              key={index}
+              onClick={() => onViewChange && onViewChange(item.view)}
+              className={`sidebar-item ${activeView === item.view ? 'active' : ''}`}
+            >
+              <span className="sidebar-icon"><FontAwesomeIcon icon={item.icon} /></span>
+              <span className="sidebar-label">{item.label}</span>
+            </button>
+          ) : (
+            // For other roles with actual routing
+            <NavLink
+              key={index}
+              to={item.path}
+              className={({ isActive }) => 
+                `sidebar-item ${isActive ? 'active' : ''}`
+              }
+            >
+              <span className="sidebar-icon"><FontAwesomeIcon icon={item.icon} /></span>
+              <span className="sidebar-label">{item.label}</span>
+            </NavLink>
+          )
         ))}
       </div>
     </aside>

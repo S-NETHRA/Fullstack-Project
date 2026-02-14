@@ -1,14 +1,26 @@
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import AddRoomModal from '../components/AddRoomModal';
 import { mockRooms, getRoomStats } from '../data/mockRooms';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSchool, faCheckCircle, faTimesCircle, faChartLine, faUsers, faRuler } from '@fortawesome/free-solid-svg-icons';
+import { faSchool, faCheckCircle, faTimesCircle, faChartLine, faUsers, faRuler, faPlus } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
-  const [rooms] = useState(mockRooms);
+  const [rooms, setRooms] = useState(mockRooms);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const stats = getRoomStats();
+
+  const handleAddRoom = (newRoom) => {
+    // TODO: Replace with actual API call - POST /api/rooms
+    setRooms([...rooms, newRoom]);
+    
+    // Save to localStorage for persistence
+    const storedRooms = JSON.parse(localStorage.getItem('rooms') || '[]');
+    storedRooms.push(newRoom);
+    localStorage.setItem('rooms', JSON.stringify(storedRooms));
+  };
 
   // Calculate utilization by building
   const buildingStats = {};
@@ -133,7 +145,16 @@ const AdminDashboard = () => {
 
           {/* All Classrooms Table */}
           <section className="dashboard-section">
-            <h2>All Classrooms</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2>All Classrooms</h2>
+              <button 
+                className="login-btn" 
+                onClick={() => setIsModalOpen(true)}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}
+              >
+                <FontAwesomeIcon icon={faPlus} /> Add Room
+              </button>
+            </div>
             <div className="table-container">
               <table className="data-table">
                 <thead>
@@ -169,6 +190,12 @@ const AdminDashboard = () => {
           </section>
         </main>
       </div>
+      
+      <AddRoomModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddRoom={handleAddRoom}
+      />
     </div>
   );
 };
