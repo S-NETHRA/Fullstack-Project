@@ -18,7 +18,7 @@ const StudentDashboard = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [activeView, setActiveView] = useState('find-rooms'); // 'find-rooms' or 'my-bookings'
+  const [activeView, setActiveView] = useState('dashboard'); // 'dashboard' | 'find-rooms' | 'my-bookings'
   const [myBookings, setMyBookings] = useState(mockBookings.filter(b => b.studentName === user.username));
 
   const buildings = ['all', ...getBuildings()];
@@ -89,92 +89,123 @@ const StudentDashboard = () => {
             </div>
           )}
 
-          {activeView === 'find-rooms' ? (
+          {activeView === 'dashboard' ? (
             <>
-              {/* Statistics Cards */}
+              {/* Dashboard Summary / Stats */}
               <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon"><FontAwesomeIcon icon={faSchool} size="2x" /></div>
-              <div className="stat-info">
-                <h3>{stats.total}</h3>
-                <p>Total Rooms</p>
-              </div>
-            </div>
-            <div className="stat-card stat-success">
-              <div className="stat-icon"><FontAwesomeIcon icon={faCheckCircle} size="2x" /></div>
-              <div className="stat-info">
-                <h3>{stats.free}</h3>
-                <p>Free Rooms</p>
-              </div>
-            </div>
-            <div className="stat-card stat-danger">
-              <div className="stat-icon"><FontAwesomeIcon icon={faTimesCircle} size="2x" /></div>
-              <div className="stat-info">
-                <h3>{stats.occupied}</h3>
-                <p>Occupied Rooms</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="filters-section">
-            <h2>Find Classrooms</h2>
-            <div className="filters">
-              <div className="filter-group">
-                <label htmlFor="building">Building:</label>
-                <select
-                  id="building"
-                  value={selectedBuilding}
-                  onChange={(e) => setSelectedBuilding(e.target.value)}
-                >
-                  {buildings.map(building => (
-                    <option key={building} value={building}>
-                      {building === 'all' ? 'All Buildings' : building}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label htmlFor="capacity">Min Capacity:</label>
-                <select
-                  id="capacity"
-                  value={minCapacity}
-                  onChange={(e) => setMinCapacity(Number(e.target.value))}
-                >
-                  <option value="0">Any</option>
-                  <option value="30">30+</option>
-                  <option value="50">50+</option>
-                  <option value="70">70+</option>
-                  <option value="100">100+</option>
-                </select>
-              </div>
-
-              <div className="filter-results">
-                <span>{filteredRooms.length} rooms found</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Rooms Grid */}
-          <div className="rooms-section">
-            <div className="rooms-grid">
-              {filteredRooms.length > 0 ? (
-                filteredRooms.map(room => (
-                  <RoomCard
-                    key={room.id}
-                    room={room}
-                    onBookClick={handleBookClick}
-                    userRole="student"
-                  />
-                ))
-              ) : (
-                <div className="no-rooms">
-                  <p>No rooms found matching your criteria</p>
+                <div className="stat-card">
+                  <div className="stat-icon"><FontAwesomeIcon icon={faSchool} size="2x" /></div>
+                  <div className="stat-info">
+                    <h3>{stats.total}</h3>
+                    <p>Total Rooms</p>
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
+                <div className="stat-card stat-success">
+                  <div className="stat-icon"><FontAwesomeIcon icon={faCheckCircle} size="2x" /></div>
+                  <div className="stat-info">
+                    <h3>{stats.free}</h3>
+                    <p>Free Rooms</p>
+                  </div>
+                </div>
+                <div className="stat-card stat-danger">
+                  <div className="stat-icon"><FontAwesomeIcon icon={faTimesCircle} size="2x" /></div>
+                  <div className="stat-info">
+                    <h3>{stats.occupied}</h3>
+                    <p>Occupied Rooms</p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1.5rem' }}>
+                <button className="login-btn" onClick={() => setActiveView('find-rooms')}>Find Rooms</button>
+              </div>
+            </>
+          ) : activeView === 'find-rooms' ? (
+            <>
+              {/* Statistics Cards (also shown on Find Rooms) */}
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-icon"><FontAwesomeIcon icon={faSchool} size="2x" /></div>
+                  <div className="stat-info">
+                    <h3>{stats.total}</h3>
+                    <p>Total Rooms</p>
+                  </div>
+                </div>
+                <div className="stat-card stat-success">
+                  <div className="stat-icon"><FontAwesomeIcon icon={faCheckCircle} size="2x" /></div>
+                  <div className="stat-info">
+                    <h3>{stats.free}</h3>
+                    <p>Free Rooms</p>
+                  </div>
+                </div>
+                <div className="stat-card stat-danger">
+                  <div className="stat-icon"><FontAwesomeIcon icon={faTimesCircle} size="2x" /></div>
+                  <div className="stat-info">
+                    <h3>{stats.occupied}</h3>
+                    <p>Occupied Rooms</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="filters-section">
+                <h2>Find Classrooms</h2>
+                <div className="filters">
+                  <div className="filter-group">
+                    <label htmlFor="building">Building:</label>
+                    <select
+                      id="building"
+                      value={selectedBuilding}
+                      onChange={(e) => setSelectedBuilding(e.target.value)}
+                    >
+                      {buildings.map(building => (
+                        <option key={building} value={building}>
+                          {building === 'all' ? 'All Buildings' : building}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label htmlFor="capacity">Min Capacity:</label>
+                    <select
+                      id="capacity"
+                      value={minCapacity}
+                      onChange={(e) => setMinCapacity(Number(e.target.value))}
+                    >
+                      <option value="0">Any</option>
+                      <option value="30">30+</option>
+                      <option value="50">50+</option>
+                      <option value="70">70+</option>
+                      <option value="100">100+</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-results">
+                    <span>{filteredRooms.length} rooms found</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rooms Grid */}
+              <div className="rooms-section">
+                <div className="rooms-grid">
+                  {filteredRooms.length > 0 ? (
+                    filteredRooms.map(room => (
+                      <RoomCard
+                        key={room.id}
+                        room={room}
+                        onBookClick={handleBookClick}
+                        userRole="student"
+                      />
+                    ))
+                  ) : (
+                    <div className="no-rooms">
+                      <p>No rooms found matching your criteria</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           ) : (
             <>

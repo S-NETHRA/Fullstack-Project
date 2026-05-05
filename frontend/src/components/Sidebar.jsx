@@ -13,21 +13,21 @@ const Sidebar = ({ activeView, onViewChange }) => {
     switch (user.role) {
       case 'student':
         return [
-          { path: '/student-dashboard', icon: faHome, label: 'Dashboard', view: 'find-rooms' },
+          { path: '/student-dashboard', icon: faHome, label: 'Dashboard', view: 'dashboard' },
           { path: '/student-dashboard', icon: faDoorOpen, label: 'Find Rooms', view: 'find-rooms' },
           { path: '/student-dashboard', icon: faClipboardList, label: 'My Bookings', view: 'my-bookings' }
         ];
       case 'faculty':
         return [
-          { path: '/faculty-dashboard', icon: faHome, label: 'Dashboard' },
-          { path: '/faculty-dashboard', icon: faDoorOpen, label: 'My Classrooms' },
-          { path: '/faculty-dashboard', icon: faFileAlt, label: 'Booking Requests' }
+          { path: '/faculty-dashboard', icon: faHome, label: 'Dashboard', view: 'dashboard' },
+          { path: '/faculty-dashboard', icon: faDoorOpen, label: 'My Classrooms', view: 'my-classrooms' },
+          { path: '/faculty-dashboard', icon: faFileAlt, label: 'Booking Requests', view: 'booking-requests' }
         ];
       case 'admin':
         return [
-          { path: '/admin-dashboard', icon: faHome, label: 'Dashboard' },
-          { path: '/admin-dashboard', icon: faChartBar, label: 'Statistics' },
-          { path: '/admin-dashboard', icon: faDoorOpen, label: 'Manage Rooms' }
+          { path: '/admin-dashboard', icon: faHome, label: 'Dashboard', view: 'dashboard' },
+          { path: '/admin-dashboard', icon: faChartBar, label: 'Statistics', view: 'statistics' },
+          { path: '/admin-dashboard', icon: faDoorOpen, label: 'Manage Rooms', view: 'manage-rooms' }
         ];
       default:
         return [];

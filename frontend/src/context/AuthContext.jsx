@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import api from '../lib/api';
 
 // Create the Auth Context
 const AuthContext = createContext();
@@ -17,36 +18,67 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const normalizeUser = (userData) => ({
+    ...userData,
+    role: userData?.role ? String(userData.role).toLowerCase() : userData?.role
+  });
+
+  const setSession = (userData) => {
+    const normalizedUser = normalizeUser(userData);
+    setUser(normalizedUser);
+    setIsAuthenticated(true);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    return normalizedUser;
+  };
+
   // Load user from localStorage on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
+      setUser(normalizeUser(parsedUser));
       setIsAuthenticated(true);
     }
   }, []);
 
   // Login function
-  // TODO: Replace with actual API call - POST /api/auth/login
-  const login = (username, role) => {
-    const userData = {
+  const login = async ({ username, password, role }) => {
+    const response = await api.post('/auth/login', {
       username,
-      role, // 'student', 'faculty', or 'admin'
-      loginTime: new Date().toISOString()
-    };
+      password,
+      role: role ? role.toUpperCase() : undefined
+    });
 
-    setUser(userData);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userData));
+    return setSession(response.data);
+  };
+
+  // Register function
+  const register = async ({ username, email, password, role }) => {
+    const response = await api.post('/auth/register', {
+      username,
+      email,
+      password,
+      role: role ? role.toUpperCase() : undefined
+    });
+
+    const session = await api.post('/auth/login', {
+      username,
+      password,
+      role: role ? role.toUpperCase() : undefined
+    });
+
+    return setSession(session.data || response.data);
   };
 
   // Logout function
-  // TODO: Replace with actual API call - POST /api/auth/logout
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('user');
+    }
   };
 
   // Check if user has specific role
@@ -58,6 +90,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     login,
+    register,
     logout,
     hasRole
   };

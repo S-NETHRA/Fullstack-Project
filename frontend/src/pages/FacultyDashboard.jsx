@@ -12,6 +12,7 @@ const FacultyDashboard = () => {
   const [rooms, setRooms] = useState(mockRooms);
   const [bookings, setBookings] = useState(mockBookings);
   const [notification, setNotification] = useState(null);
+  const [activeView, setActiveView] = useState('dashboard'); // 'dashboard' | 'my-classrooms' | 'booking-requests'
 
   // Get faculty's assigned rooms (in real app, this would be filtered by faculty ID)
   const assignedRooms = rooms.filter(room => 
@@ -77,7 +78,7 @@ const FacultyDashboard = () => {
     <div className="dashboard-layout">
       <Navbar />
       <div className="dashboard-main">
-        <Sidebar />
+        <Sidebar activeView={activeView} onViewChange={setActiveView} />
         <main className="dashboard-content">
           <div className="dashboard-header">
             <h1>Faculty Dashboard</h1>
@@ -90,81 +91,104 @@ const FacultyDashboard = () => {
             </div>
           )}
 
-          {/* My Classrooms Section */}
-          <section className="dashboard-section">
-            <h2>My Classrooms</h2>
-            <div className="rooms-grid">
-              {assignedRooms.map(room => (
-                <RoomCard
-                  key={room.id}
-                  room={room}
-                  onStartClass={handleStartClass}
-                  onEndClass={handleEndClass}
-                  userRole="faculty"
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* Booking Requests Section */}
-          <section className="dashboard-section">
-            <h2>Pending Booking Requests</h2>
-            {pendingBookings.length > 0 ? (
-              <div className="bookings-list">
-                {pendingBookings.map(booking => (
-                  <div key={booking.id} className="booking-card">
-                    <div className="booking-header">
-                      <div>
-                        <h3>Room {booking.roomNumber}</h3>
-                        <p className="booking-building">{booking.building}</p>
-                      </div>
-                      <span className="booking-status status-pending">Pending</span>
-                    </div>
-                    
-                    <div className="booking-details">
-                      <div className="booking-info">
-                        <span className="label">Student:</span>
-                        <span className="value">{booking.studentName} ({booking.studentId})</span>
-                      </div>
-                      <div className="booking-info">
-                        <span className="label">Purpose:</span>
-                        <span className="value">{booking.purpose}</span>
-                      </div>
-                      <div className="booking-info">
-                        <span className="label">Time:</span>
-                        <span className="value">
-                          {formatDateTime(booking.startTime)} - {formatDateTime(booking.endTime)}
-                        </span>
-                      </div>
-                      <div className="booking-info">
-                        <span className="label">Requested:</span>
-                        <span className="value">{formatDateTime(booking.requestedAt)}</span>
-                      </div>
-                    </div>
-
-                    <div className="booking-actions">
-                      <button 
-                        className="btn btn-success"
-                        onClick={() => handleApproveBooking(booking)}
-                      >
-                        Approve
-                      </button>
-                      <button 
-                        className="btn btn-danger"
-                        onClick={() => handleRejectBooking(booking)}
-                      >
-                        Reject
-                      </button>
-                    </div>
+          {activeView === 'dashboard' ? (
+            <>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-icon"><i className="fas fa-door-open" /></div>
+                  <div className="stat-info">
+                    <h3>{assignedRooms.length}</h3>
+                    <p>Assigned/Classrooms</p>
                   </div>
+                </div>
+                <div className="stat-card stat-success">
+                  <div className="stat-icon"><i className="fas fa-check-circle" /></div>
+                  <div className="stat-info">
+                    <h3>{pendingBookings.length}</h3>
+                    <p>Pending Requests</p>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: '1.2rem' }}>
+                <button className="login-btn" onClick={() => setActiveView('my-classrooms')}>My Classrooms</button>
+                <button className="login-btn" style={{ marginLeft: '10px' }} onClick={() => setActiveView('booking-requests')}>Booking Requests</button>
+              </div>
+            </>
+          ) : activeView === 'my-classrooms' ? (
+            <section className="dashboard-section">
+              <h2>My Classrooms</h2>
+              <div className="rooms-grid">
+                {assignedRooms.map(room => (
+                  <RoomCard
+                    key={room.id}
+                    room={room}
+                    onStartClass={handleStartClass}
+                    onEndClass={handleEndClass}
+                    userRole="faculty"
+                  />
                 ))}
               </div>
-            ) : (
-              <div className="empty-state">
-                <p>No pending booking requests</p>
-              </div>
-            )}
-          </section>
+            </section>
+          ) : (
+            <section className="dashboard-section">
+              <h2>Pending Booking Requests</h2>
+              {pendingBookings.length > 0 ? (
+                <div className="bookings-list">
+                  {pendingBookings.map(booking => (
+                    <div key={booking.id} className="booking-card">
+                      <div className="booking-header">
+                        <div>
+                          <h3>Room {booking.roomNumber}</h3>
+                          <p className="booking-building">{booking.building}</p>
+                        </div>
+                        <span className="booking-status status-pending">Pending</span>
+                      </div>
+                      
+                      <div className="booking-details">
+                        <div className="booking-info">
+                          <span className="label">Student:</span>
+                          <span className="value">{booking.studentName} ({booking.studentId})</span>
+                        </div>
+                        <div className="booking-info">
+                          <span className="label">Purpose:</span>
+                          <span className="value">{booking.purpose}</span>
+                        </div>
+                        <div className="booking-info">
+                          <span className="label">Time:</span>
+                          <span className="value">
+                            {formatDateTime(booking.startTime)} - {formatDateTime(booking.endTime)}
+                          </span>
+                        </div>
+                        <div className="booking-info">
+                          <span className="label">Requested:</span>
+                          <span className="value">{formatDateTime(booking.requestedAt)}</span>
+                        </div>
+                      </div>
+
+                      <div className="booking-actions">
+                        <button 
+                          className="btn btn-success"
+                          onClick={() => handleApproveBooking(booking)}
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          className="btn btn-danger"
+                          onClick={() => handleRejectBooking(booking)}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <p>No pending booking requests</p>
+                </div>
+              )}
+            </section>
+          )}
         </main>
       </div>
     </div>

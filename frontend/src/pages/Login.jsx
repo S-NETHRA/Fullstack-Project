@@ -7,12 +7,14 @@ import '../styles/Login.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState('student');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -21,23 +23,34 @@ const Login = () => {
       return;
     }
 
-    // TODO: Replace with actual API authentication - POST /api/auth/login
-    // For now, just store user info locally
-    login(username, role);
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
 
-    // Navigate to appropriate dashboard based on role
-    switch (role) {
-      case 'student':
-        navigate('/student-dashboard');
-        break;
-      case 'faculty':
-        navigate('/faculty-dashboard');
-        break;
-      case 'admin':
-        navigate('/admin-dashboard');
-        break;
-      default:
-        navigate('/');
+    setLoading(true);
+
+    try {
+      const user = await login({ username, password, role });
+
+      switch (user.role) {
+        case 'student':
+          navigate('/student-dashboard');
+          break;
+        case 'faculty':
+          navigate('/faculty-dashboard');
+          break;
+        case 'admin':
+          navigate('/admin-dashboard');
+          break;
+        default:
+          navigate('/');
+      }
+    } catch (loginError) {
+      const message = loginError?.response?.data?.error || 'Login failed. Check your credentials.';
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,10 +88,22 @@ const Login = () => {
             </select>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className={error && !password.trim() ? 'error' : ''}
+            />
+          </div>
+
           {error && <div className="error-message">{error}</div>}
 
           <button type="submit" className="login-btn">
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
 
           <div className="login-footer" style={{ textAlign: 'center', marginTop: '15px' }}>

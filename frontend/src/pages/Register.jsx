@@ -15,8 +15,9 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -25,7 +26,7 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -56,41 +57,19 @@ const Register = () => {
       return;
     }
 
-    // TODO: Replace with actual API call - POST /api/auth/register
-    // For now, store user info and auto-login
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    // Check if username already exists
-    if (users.some(user => user.username === formData.username)) {
-      setError('Username already exists');
-      return;
-    }
+    setLoading(true);
 
-    // Check if email already exists
-    if (users.some(user => user.email === formData.email)) {
-      setError('Email already registered');
-      return;
-    }
+    try {
+      const user = await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role
+      });
 
-    // Add new user
-    users.push({
-      username: formData.username,
-      email: formData.email,
-      password: formData.password, // In production, this should be hashed on backend
-      role: formData.role,
-      createdAt: new Date().toISOString()
-    });
+      setSuccess('Registration successful! Redirecting...');
 
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    setSuccess('Registration successful! Redirecting...');
-    
-    // Auto-login after registration
-    setTimeout(() => {
-      login(formData.username, formData.role);
-      
-      // Navigate to appropriate dashboard
-      switch (formData.role) {
+      switch (user.role) {
         case 'student':
           navigate('/student-dashboard');
           break;
@@ -103,7 +82,12 @@ const Register = () => {
         default:
           navigate('/');
       }
-    }, 1500);
+    } catch (registerError) {
+      const message = registerError?.response?.data?.error || 'Registration failed. Please try again.';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -181,7 +165,7 @@ const Register = () => {
           {success && <div className="success-message">{success}</div>}
 
           <button type="submit" className="login-btn">
-            Register
+            {loading ? 'Registering...' : 'Register'}
           </button>
 
           <div className="login-footer" style={{ textAlign: 'center', marginTop: '15px' }}>
